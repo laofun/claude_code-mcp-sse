@@ -1,9 +1,5 @@
 version: '3.8'
 
-networks:
-  mcp-network:
-    driver: bridge
-
 services:
   # PostgreSQL for persistent storage
   postgres:
@@ -18,7 +14,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - mcp-network
+      - mcp_ai_collab_net
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mcp_user}"]
       interval: 10s
@@ -138,3 +134,7 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  
+networks:
+  mcp-network:
+    driver: bridge
