@@ -1,58 +1,57 @@
 # Core framework
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
 python-multipart==0.0.6
-sse-starlette==2.3.6
+sse-starlette>=2.3.6
 
 # Database
-asyncpg==0.29.0
-redis==5.0.1
-sqlalchemy==2.0.23
-alembic==1.12.1
+asyncpg>=0.29.0
+redis>=5.0.1
+sqlalchemy>=2.0.23
+alembic>=1.12.1
 
 # MCP Protocol
-jsonrpc==3.0.0
-websockets==12.0
+jsonrpc>=3.0.0
+websockets>=12.0
 
 # Development tools
-debugpy==1.8.0
-pylint==3.0.2
-black==23.11.0
-flake8==6.1.0
-mypy==1.7.1
-autopep8==2.0.4
+debugpy>=1.8.0
+pylint>=3.0.2
+black>=23.11.0
+flake8>=6.1.0
+mypy>=1.7.1
+autopep8>=2.0.4
 
 # Code analysis
-tree-sitter==0.20.2
+tree-sitter>=0.20.2
 ast-grep-py>=0.20.0
-bandit==1.7.5
-safety==2.3.5
+bandit>=1.7.5
+safety>=2.3.5
 
 # Testing
-pytest==7.4.3
-pytest-asyncio==0.21.1
-pytest-cov==4.1.0
-pytest-mock==3.12.0
-hypothesis==6.92.1
+pytest>=7.4.3
+pytest-asyncio>=0.21.1
+pytest-cov>=4.1.0
+pytest-mock>=3.12.0
+hypothesis>=6.92.1
 
 # Utilities
-python-dotenv==1.0.0
-pydantic==2.5.2
-pydantic-settings==2.1.0
-httpx==0.25.2
-tenacity==8.2.3
-structlog==23.2.0
+python-dotenv>=1.0.0
+pydantic>=2.5.2
+pydantic-settings>=2.1.0
+httpx>=0.25.2
+tenacity>=8.2.3
+structlog>=23.2.0
 
 # Security
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
-python-multipart==0.0.6
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
 
 # Performance
-aiocache==0.12.2
-aiofiles==23.2.1
-orjson==3.9.10
+aiocache>=0.12.2
+aiofiles>=23.2.1
+orjson>=3.9.10
 
 # Documentation
-mkdocs==1.5.3
-mkdocs-material==9.4.14
+mkdocs>=1.5.3
+mkdocs-material>=9.4.14
