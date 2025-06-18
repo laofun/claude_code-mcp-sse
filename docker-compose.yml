@@ -6,13 +6,15 @@ services:
     image: postgres:16-alpine
     container_name: mcp-postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-mcp_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mcp_password}
-      POSTGRES_DB: ${POSTGRES_DB:-mcp_dev}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
+    expose:
+      - "5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./pg-data:/var/lib/postgresql/data
     networks:
       - mcp-network
     healthcheck:
@@ -132,7 +134,6 @@ services:
     command: python src/mcp_sse_server.py
 
 volumes:
-  postgres_data:
   redis_data:
   
 networks:
