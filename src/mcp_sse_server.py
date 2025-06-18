@@ -40,10 +40,13 @@ class DatabaseManager:
             await self.redis_client.ping()
             logger.info(f"✅ Redis connected: {redis_url}")
             
-            # PostgreSQL connection
-            db_url = os.getenv("DATABASE_URL", "postgresql://zenii181:zenii181@postgres:5432/mcp_dev")
+            # PostgreSQL connection from environment
+            db_url = os.getenv("DATABASE_URL")
+            if not db_url:
+                raise ValueError("DATABASE_URL environment variable not set")
+            
             self.pg_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
-            logger.info(f"✅ PostgreSQL connected: {db_url}")
+            logger.info(f"✅ PostgreSQL connected: {db_url.split('@')[1] if '@' in db_url else 'configured'}")
             
             # Create tables
             await self._create_tables()
