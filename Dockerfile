@@ -20,7 +20,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Create non-root user
-RUN useradd -m -u 1000 mcp && chown -R mcp:mcp /app
+RUN useradd -m mcp && chown -R mcp:mcp /app
 USER mcp
 
 # Expose port

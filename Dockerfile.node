@@ -17,8 +17,8 @@ RUN npm install --omit=dev
 COPY . .
 
 # Create non-root user
-RUN addgroup -g 1000 -S mcp && \
-    adduser -u 1000 -S mcp -G mcp && \
+RUN addgroup -S mcp && \
+    adduser -S mcp -G mcp && \
     chown -R mcp:mcp /app
 USER mcp
 
