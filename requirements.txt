@@ -2,6 +2,7 @@
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 python-multipart==0.0.6
+sse-starlette==2.3.6
 
 # Database
 asyncpg==0.29.0

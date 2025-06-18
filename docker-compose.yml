@@ -56,11 +56,11 @@ services:
       - PYTHONUNBUFFERED=1
       # Primary AI - Gemini (Required)
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.0-flash}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
       # Optional AI Services (can be left empty)
-      - GROK_API_KEY=${GROK_API_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}      
+      - GROK_API_KEY=${GROK_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}      
       - GROK_MODEL=${GROK_MODEL:-grok-3}
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
       - DEEPSEEK_MODEL=${DEEPSEEK_MODEL:-deepseek-chat}
@@ -107,6 +107,33 @@ services:
     networks:
       - mcp-network
     command: npm run dev
+
+  # MCP SSE Server
+  mcp-sse-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-sse-server
+    ports:
+      - "${SSE_PORT:-23000}:23000"
+    environment:
+      - PORT=23000
+      - HOST=0.0.0.0
+      - PYTHONUNBUFFERED=1
+      # AI API Keys
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GROK_API_KEY=${GROK_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      # Optional Configuration
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - SESSION_TIMEOUT=${SESSION_TIMEOUT:-3600}
+      - MAX_CONTEXT_LENGTH=${MAX_CONTEXT_LENGTH:-10000}
+    volumes:
+      - ./src:/app/src
+    networks:
+      - mcp-network
+    command: python src/mcp_sse_server.py
 
 volumes:
   postgres_data:
