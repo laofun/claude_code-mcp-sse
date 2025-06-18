@@ -115,9 +115,9 @@ services:
       dockerfile: Dockerfile
     container_name: mcp-sse-server
     ports:
-      - "${SSE_PORT:-23000}:23000"
+      - "${SSE_PORT:-8001}:8001"
     environment:
-      - PORT=23000
+      - PORT=8001
       - HOST=0.0.0.0
       - PYTHONUNBUFFERED=1
       # AI API Keys

@@ -36,7 +36,7 @@ if [ -f ".env" ]; then
 fi
 
 # Set default values
-export PORT=${PORT:-${SSE_PORT:-23000}}
+export PORT=${PORT:-${SSE_PORT:-8001}}
 export HOST=${HOST:-0.0.0.0}
 
 echo "📡 Server will start on $HOST:$PORT"

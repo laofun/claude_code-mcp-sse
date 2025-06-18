@@ -5,7 +5,7 @@
 
 set -e
 
-PORT=${SSE_PORT:-23000}
+PORT=${SSE_PORT:-8001}
 BASE_URL="http://localhost:$PORT"
 
 echo "🧪 Testing MCP SSE Server on $BASE_URL"
