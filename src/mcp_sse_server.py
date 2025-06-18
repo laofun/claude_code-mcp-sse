@@ -13,7 +13,7 @@ from typing import Dict, Any, AsyncGenerator, Optional
 import uuid
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, WebSocket
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -269,16 +269,22 @@ class MCPSSEServer:
         @self.app.get("/")
         async def root():
             return {
-                "name": "MCP SSE Server",
-                "version": "1.0.0",
-                "transport": "sse",
+                "name": "MCP SSE Server Enhanced",
+                "version": "2.0.0",
+                "transports": {
+                    "sse": "/sse",
+                    "websocket": "/ws"
+                },
                 "status": "running",
                 "endpoints": {
                     "sse": "/sse",
-                    "message": "/message"
+                    "websocket": "/ws",
+                    "message": "/message",
+                    "register": "/register"
                 },
                 "active_clients": len(self.active_clients),
-                "configured_ais": [k for k, v in self.api_keys.items() if v]
+                "configured_ais": [k for k, v in self.api_keys.items() if v],
+                "mcp_version": "2024-11-05"
             }
         
         @self.app.get("/sse")
@@ -382,6 +388,45 @@ class MCPSSEServer:
                 "registration_endpoint_supported": True,
                 "dynamic_client_registration_supported": True
             }
+        
+        # Add WebSocket endpoint as alternative transport
+        @self.app.websocket("/ws")
+        async def websocket_endpoint(websocket: WebSocket):
+            """WebSocket endpoint for MCP communication"""
+            await websocket.accept()
+            client_id = str(uuid.uuid4())
+            logger.info(f"🔌 WebSocket client connected: {client_id}")
+            
+            try:
+                # Send initial message
+                await websocket.send_json({
+                    "jsonrpc": "2.0",
+                    "method": "server/info",
+                    "params": {
+                        "serverInfo": {
+                            "name": "mcp-sse-server-enhanced",
+                            "version": "2.0.0"
+                        },
+                        "capabilities": {
+                            "tools": True,
+                            "context": True,
+                            "notifications": True,
+                            "streaming": True
+                        },
+                        "transport": "websocket"
+                    }
+                })
+                
+                # Handle messages
+                while True:
+                    data = await websocket.receive_json()
+                    response = await self.process_mcp_message(data)
+                    await websocket.send_json(response)
+                    
+            except Exception as e:
+                logger.error(f"WebSocket error for {client_id}: {e}")
+            finally:
+                logger.info(f"🔌 WebSocket client {client_id} disconnected")
     
     async def sse_generator(self, request: Request) -> AsyncGenerator[str, None]:
         """Generate SSE events"""
