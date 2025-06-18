@@ -318,25 +318,33 @@ class MCPSSEServer:
         
         # Add missing MCP dynamic registration endpoints
         @self.app.post("/register")
-        async def mcp_register():
-            """MCP dynamic registration endpoint"""
-            return {
-                "server_info": {
-                    "name": "mcp-sse-server-enhanced",
-                    "version": "2.0.0"
-                },
-                "capabilities": {
-                    "tools": True,
-                    "context": True,
-                    "notifications": True,
-                    "streaming": True,
-                    "sse": True
-                },
-                "transport": {
-                    "type": "sse",
-                    "url": "/sse"
+        async def mcp_register(request: Request):
+            """OAuth dynamic client registration endpoint"""
+            try:
+                client_data = await request.json()
+                client_id = str(uuid.uuid4())
+                client_secret = str(uuid.uuid4())
+                
+                # Store client registration (simplified)
+                logger.info(f"🔐 Client registered: {client_id}")
+                
+                return {
+                    "client_id": client_id,
+                    "client_secret": client_secret,
+                    "client_id_issued_at": int(datetime.now().timestamp()),
+                    "client_secret_expires_at": 0,  # Never expires
+                    "registration_client_uri": f"/clients/{client_id}",
+                    "registration_access_token": str(uuid.uuid4()),
+                    "grant_types": ["authorization_code"],
+                    "response_types": ["code"],
+                    "token_endpoint_auth_method": "client_secret_basic"
                 }
-            }
+            except Exception as e:
+                logger.error(f"Registration error: {e}")
+                return {
+                    "error": "invalid_request",
+                    "error_description": str(e)
+                }
         
         @self.app.get("/.well-known/mcp-server")
         async def mcp_server_metadata():
@@ -365,11 +373,14 @@ class MCPSSEServer:
                 "issuer": "mcp-sse-server",
                 "authorization_endpoint": "/auth",
                 "token_endpoint": "/token",
+                "registration_endpoint": "/register",
                 "response_types_supported": ["code"],
                 "grant_types_supported": ["authorization_code"],
-                "token_endpoint_auth_methods_supported": ["client_secret_basic"],
+                "token_endpoint_auth_methods_supported": ["client_secret_basic", "none"],
                 "scopes_supported": ["read", "write"],
-                "code_challenge_methods_supported": ["plain", "S256"]
+                "code_challenge_methods_supported": ["plain", "S256"],
+                "registration_endpoint_supported": True,
+                "dynamic_client_registration_supported": True
             }
     
     async def sse_generator(self, request: Request) -> AsyncGenerator[str, None]:
