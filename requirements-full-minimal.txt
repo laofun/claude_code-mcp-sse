@@ -1,0 +1,20 @@
+# Full minimal requirements for MCP Server
+# Core FastAPI stack
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+sse-starlette>=2.3.6
+python-dotenv>=1.0.0
+pydantic>=2.5.2
+
+# Database connections
+redis>=5.0.1
+asyncpg>=0.29.0
+
+# Logging and utilities
+structlog>=23.2.0
+
+# HTTP client for AI APIs
+httpx>=0.25.2
+
+# Additional utilities that might be needed
+tenacity>=8.2.3
