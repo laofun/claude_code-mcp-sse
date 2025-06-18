@@ -338,6 +338,26 @@ class MCPSSEServer:
                 }
             }
         
+        @self.app.get("/.well-known/mcp-server")
+        async def mcp_server_metadata():
+            """MCP server discovery metadata"""
+            return {
+                "name": "mcp-sse-server-enhanced",
+                "version": "2.0.0",
+                "description": "Enhanced MCP SSE Server with Redis + PostgreSQL",
+                "transport": {
+                    "type": "sse",
+                    "url": "/sse"
+                },
+                "capabilities": {
+                    "tools": True,
+                    "context": True,
+                    "notifications": True,
+                    "streaming": True,
+                    "sse": True
+                }
+            }
+        
         @self.app.get("/.well-known/oauth-authorization-server")
         async def oauth_metadata():
             """OAuth metadata endpoint (for MCP compatibility)"""
@@ -345,8 +365,11 @@ class MCPSSEServer:
                 "issuer": "mcp-sse-server",
                 "authorization_endpoint": "/auth",
                 "token_endpoint": "/token",
-                "supported_response_types": ["code"],
-                "supported_grant_types": ["authorization_code"]
+                "response_types_supported": ["code"],
+                "grant_types_supported": ["authorization_code"],
+                "token_endpoint_auth_methods_supported": ["client_secret_basic"],
+                "scopes_supported": ["read", "write"],
+                "code_challenge_methods_supported": ["plain", "S256"]
             }
     
     async def sse_generator(self, request: Request) -> AsyncGenerator[str, None]:
