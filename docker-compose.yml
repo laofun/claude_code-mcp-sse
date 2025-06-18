@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # PostgreSQL for persistent storage
   postgres:
     image: postgres:16.9-alpine
     container_name: mcp-postgres
@@ -27,7 +26,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: mcp-redis
-    command: redis-server --appendonly yes
+    command: redis-server --appendonly yes ${REDIS_PASSWORD:+--requirepass $REDIS_PASSWORD}
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
