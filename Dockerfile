@@ -11,10 +11,10 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy requirements
-COPY requirements-full-minimal.txt requirements.txt ./
+COPY requirements-minimal.txt requirements.txt ./
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements-full-minimal.txt
+RUN pip install --no-cache-dir -r requirements-minimal.txt
 
 # Copy application code
 COPY . .
