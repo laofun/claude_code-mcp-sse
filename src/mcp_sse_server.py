@@ -315,6 +315,39 @@ class MCPSSEServer:
                         "message": str(e)
                     }
                 }
+        
+        # Add missing MCP dynamic registration endpoints
+        @self.app.post("/register")
+        async def mcp_register():
+            """MCP dynamic registration endpoint"""
+            return {
+                "server_info": {
+                    "name": "mcp-sse-server-enhanced",
+                    "version": "2.0.0"
+                },
+                "capabilities": {
+                    "tools": True,
+                    "context": True,
+                    "notifications": True,
+                    "streaming": True,
+                    "sse": True
+                },
+                "transport": {
+                    "type": "sse",
+                    "url": "/sse"
+                }
+            }
+        
+        @self.app.get("/.well-known/oauth-authorization-server")
+        async def oauth_metadata():
+            """OAuth metadata endpoint (for MCP compatibility)"""
+            return {
+                "issuer": "mcp-sse-server",
+                "authorization_endpoint": "/auth",
+                "token_endpoint": "/token",
+                "supported_response_types": ["code"],
+                "supported_grant_types": ["authorization_code"]
+            }
     
     async def sse_generator(self, request: Request) -> AsyncGenerator[str, None]:
         """Generate SSE events"""
