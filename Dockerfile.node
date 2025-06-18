@@ -1,0 +1,29 @@
+# Node.js WebSocket Server Dockerfile
+FROM node:18-alpine
+
+# Install system dependencies
+RUN apk add --no-cache python3 make g++
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy application code
+COPY . .
+
+# Create non-root user
+RUN addgroup -g 1000 -S mcp && \
+    adduser -u 1000 -S mcp -G mcp && \
+    chown -R mcp:mcp /app
+USER mcp
+
+# Expose port
+EXPOSE 3000
+
+# Default command
+CMD ["npm", "run", "start"]

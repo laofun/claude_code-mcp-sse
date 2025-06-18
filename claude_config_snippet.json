@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "enhanced-context-simple": {
+      "command": "python3",
+      "args": [
+        "/Users/lfun/00.Dev/01.laofun/claude_code-mcp-sse/src/mcp_server_clean.py",
+        "--stdio"
+      ],
+      "cwd": "/Users/lfun/00.Dev/01.laofun/claude_code-mcp-sse"
+    }
+  }
+}

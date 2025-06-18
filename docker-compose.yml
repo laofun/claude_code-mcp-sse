@@ -1,0 +1,113 @@
+version: '3.8'
+
+networks:
+  mcp-network:
+    driver: bridge
+
+services:
+  # PostgreSQL for persistent storage
+  postgres:
+    image: postgres:16-alpine
+    container_name: mcp-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-mcp_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mcp_password}
+      POSTGRES_DB: ${POSTGRES_DB:-mcp_dev}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mcp-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mcp_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: mcp-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - mcp-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Python MCP Server
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-server
+    ports:
+      - "${MCP_PORT:-8000}:8000"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-mcp_user}:${POSTGRES_PASSWORD:-mcp_password}@postgres:5432/${POSTGRES_DB:-mcp_dev}
+      - REDIS_URL=redis://${REDIS_PASSWORD:+:$REDIS_PASSWORD@}redis:6379
+      - PYTHONUNBUFFERED=1
+      # Primary AI - Gemini (Required)
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.0-flash}
+      # Optional AI Services (can be left empty)
+      - GROK_API_KEY=${GROK_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}      
+      - GROK_MODEL=${GROK_MODEL:-grok-3}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
+      - DEEPSEEK_MODEL=${DEEPSEEK_MODEL:-deepseek-chat}
+      # Core Configuration
+      - ENABLE_DEBUGGING=${ENABLE_DEBUGGING:-true}
+      - ENABLE_CODE_ANALYSIS=${ENABLE_CODE_ANALYSIS:-true}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - SESSION_TIMEOUT=${SESSION_TIMEOUT:-3600}
+      - MAX_CONTEXT_LENGTH=${MAX_CONTEXT_LENGTH:-10000}
+      - JWT_SECRET=${JWT_SECRET}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src
+      - ./templates:/app/templates
+    networks:
+      - mcp-network
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Node.js WebSocket Server
+  websocket-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    container_name: mcp-websocket
+    ports:
+      - "${WEBSOCKET_PORT:-3000}:3000"
+    environment:
+      - REDIS_URL=redis://${REDIS_PASSWORD:+:$REDIS_PASSWORD@}redis:6379
+      - NODE_ENV=${NODE_ENV:-development}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - SESSION_TIMEOUT=${SESSION_TIMEOUT:-3600}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src
+      - /app/node_modules
+    networks:
+      - mcp-network
+    command: npm run dev
+
+volumes:
+  postgres_data:
+  redis_data:
